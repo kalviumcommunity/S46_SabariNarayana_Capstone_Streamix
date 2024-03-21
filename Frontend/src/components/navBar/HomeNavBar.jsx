@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import '@fontsource/koulen';
 
 export const HomeNavBar = () => {
@@ -10,7 +10,7 @@ export const HomeNavBar = () => {
   };
 
   return (
-    <div className="text-black w-full mx-auto">
+    <div className="text-white w-full mx-auto bg-black">
       <nav className="flex justify-between items-center p-4">
         <div className="logo font-koulen text-4xl">
           <a href="/">Streamix</a>
@@ -55,9 +55,20 @@ export const HomeNavBar = () => {
             </li>
           </ul>
         </div>
-        <div className="hidden md:block">
-          <a href="/">Sign in</a>
-        </div>
+        <div className="hidden md:flex items-center">
+  <Link
+    to="/signin"
+    className="text-white hover:border-white hover:border-2 px-4 py-2 rounded-md mr-3 "
+  >
+    Sign In
+  </Link>
+  <Link
+    to="/signup"
+    className="text-black bg-white hover:bg-black hover:text-white border-2 border-white px-4 py-2 rounded-md"
+  >
+    Sign Up
+  </Link>
+</div>
         <div className="md:hidden">
           <button
             onClick={toggleMenu}
