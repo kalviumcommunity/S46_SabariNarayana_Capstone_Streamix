@@ -1,38 +1,44 @@
-import React from 'react';
-import google from '/google.svg';
+import React from "react";
+import google from "/google.svg";
 
 export const SignInForm = () => {
   return (
-    <div className="flex items-center justify-center h-screen bg-black">
-      <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-black">Sign In</h2>
+    <div className="flex h-screen items-center justify-center bg-black">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
+        <h2 className="mb-6 text-2xl font-bold text-black">Sign In</h2>
         <form>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-bold mb-2">
+            <label
+              htmlFor="email"
+              className="mb-2 block font-bold text-gray-700"
+            >
               Email
             </label>
             <input
               type="email"
               id="email"
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 focus:outline-none"
               placeholder="Enter your email"
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 font-bold mb-2">
+            <label
+              htmlFor="password"
+              className="mb-2 block font-bold text-gray-700"
+            >
               Password
             </label>
             <input
               type="password"
               id="password"
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 focus:outline-none"
               placeholder="Enter your password"
             />
           </div>
-          <div className="flex items-center justify-center mb-6">
+          <div className="mb-6 flex items-center justify-center">
             <button
               type="submit"
-              className="bg-black hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="focus:shadow-outline rounded bg-black px-4 py-2 font-bold text-white hover:bg-gray-700 focus:outline-none"
             >
               Sign In
             </button>
@@ -40,9 +46,10 @@ export const SignInForm = () => {
           <div>
             <button
               type="button"
-              className="flex items-center justify-center w-full bg-white hover:bg-gray-100 text-black font-bold py-2 px-4 rounded border border-gray-400 "
+              className="flex w-full items-center justify-center rounded border border-gray-400 bg-white px-4 py-2 font-bold text-black hover:bg-gray-100 "
             >
-              <img src={google} alt="" className='h-8 w-auto mr-2'/> Sign in with Google
+              <img src={google} alt="" className="mr-2 h-8 w-auto" /> Sign in
+              with Google
             </button>
           </div>
         </form>

@@ -2,12 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import { Home } from "./pages/Home";
 import { Signup } from "./pages/Signup";
 import { Signin } from "./pages/Signin";
-import './App.css'
-
-
+import "./App.css";
 
 function App() {
-
   return (
     <>
       <Routes>
@@ -17,7 +14,7 @@ function App() {
         {/* Add more routes as needed */}
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

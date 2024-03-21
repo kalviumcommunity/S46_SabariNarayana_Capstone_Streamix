@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import '@fontsource/koulen';
+import React, { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import "@fontsource/koulen";
 
 export const HomeNavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,9 +10,9 @@ export const HomeNavBar = () => {
   };
 
   return (
-    <div className="text-white w-full mx-auto bg-black">
-      <nav className="flex justify-between items-center p-4">
-        <div className="logo font-koulen text-4xl">
+    <div className="mx-auto w-full bg-black text-white">
+      <nav className="flex items-center justify-between p-4">
+        <div className="logo font-myFont text-5xl">
           <a href="/">Streamix</a>
         </div>
         <div className="hidden md:flex">
@@ -22,8 +22,8 @@ export const HomeNavBar = () => {
                 to="/home"
                 className={({ isActive }) =>
                   isActive
-                    ? 'text-blue-500 font-bold'
-                    : 'text-gray-500 hover:text-blue-500'
+                    ? "font-bold text-blue-500"
+                    : "text-gray-500 hover:text-blue-500"
                 }
               >
                 Home
@@ -34,8 +34,8 @@ export const HomeNavBar = () => {
                 to="/featured"
                 className={({ isActive }) =>
                   isActive
-                    ? 'text-blue-500 font-bold'
-                    : 'text-gray-500 hover:text-blue-500'
+                    ? "font-bold text-blue-500"
+                    : "text-gray-500 hover:text-blue-500"
                 }
               >
                 Featured
@@ -46,8 +46,8 @@ export const HomeNavBar = () => {
                 to="/about"
                 className={({ isActive }) =>
                   isActive
-                    ? 'text-blue-500 font-bold'
-                    : 'text-gray-500 hover:text-blue-500'
+                    ? "font-bold text-blue-500"
+                    : "text-gray-500 hover:text-blue-500"
                 }
               >
                 About Us
@@ -55,20 +55,20 @@ export const HomeNavBar = () => {
             </li>
           </ul>
         </div>
-        <div className="hidden md:flex items-center">
-  <Link
-    to="/signin"
-    className="text-white hover:border-white hover:border-2 px-4 py-2 rounded-md mr-3 "
-  >
-    Sign In
-  </Link>
-  <Link
-    to="/signup"
-    className="text-black bg-white hover:bg-black hover:text-white border-2 border-white px-4 py-2 rounded-md"
-  >
-    Sign Up
-  </Link>
-</div>
+        <div className="hidden items-center md:flex">
+          <Link
+            to="/signin"
+            className="mr-3 rounded-md px-4 py-2 text-white hover:border-2 hover:border-white "
+          >
+            Sign In
+          </Link>
+          <Link
+            to="/signup"
+            className="rounded-md border-2 border-white bg-white px-4 py-2 text-black hover:bg-black hover:text-white"
+          >
+            Sign Up
+          </Link>
+        </div>
         <div className="md:hidden">
           <button
             onClick={toggleMenu}
@@ -104,8 +104,8 @@ export const HomeNavBar = () => {
                 to="/home"
                 className={({ isActive }) =>
                   isActive
-                    ? 'text-blue-500 font-bold'
-                    : 'text-gray-500 hover:text-blue-500'
+                    ? "font-bold text-blue-500"
+                    : "text-gray-500 hover:text-blue-500"
                 }
                 onClick={toggleMenu}
               >
@@ -117,8 +117,8 @@ export const HomeNavBar = () => {
                 to="/featured"
                 className={({ isActive }) =>
                   isActive
-                    ? 'text-blue-500 font-bold'
-                    : 'text-gray-500 hover:text-blue-500'
+                    ? "font-bold text-blue-500"
+                    : "text-gray-500 hover:text-blue-500"
                 }
                 onClick={toggleMenu}
               >
@@ -130,8 +130,8 @@ export const HomeNavBar = () => {
                 to="/about"
                 className={({ isActive }) =>
                   isActive
-                    ? 'text-blue-500 font-bold'
-                    : 'text-gray-500 hover:text-blue-500'
+                    ? "font-bold text-blue-500"
+                    : "text-gray-500 hover:text-blue-500"
                 }
                 onClick={toggleMenu}
               >
