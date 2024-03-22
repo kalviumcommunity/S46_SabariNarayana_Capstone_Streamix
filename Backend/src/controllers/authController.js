@@ -1,4 +1,5 @@
 const { validateEmail } = require('../utils/emailChecker')
+const { passwordChecker } = require('../utils/passwordChecker')
 const { UserModel } = require('../models/Schema')
 
 exports.getTest = (req, res) => {
@@ -23,7 +24,8 @@ exports.postSignup = async (req, res) => {
         console.log(req.body) // Log the request body
         // Destructuring required data from request body
         const { name, password, email } = req.body
-        if (await validateEmail(email)) {
+        const userExists = await validateEmail(email)
+        if (userExists.UserExists) {
             return res.status(200).json({ emailExists: true })
         }
         const userData = {
@@ -41,6 +43,35 @@ exports.postSignup = async (req, res) => {
             emailExists: false,
             message: 'User created successfully',
         })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: 'Server error' })
+    }
+}
+
+exports.postSignin = async (req, res) => {
+    console.log('signin')
+    try {
+        console.log(req.body) // Log the request body
+        // Destructuring required data from request body
+        const { password, email } = req.body
+        // Email Validaition
+        const userExists = await validateEmail(email)
+        console.log(userExists)
+        if (!userExists.UserExist) {
+            // Corrected typo: flase to false
+            return res.status(200).json({
+                emailExists: false, // Corrected typo: flase to false
+                message: 'User does not exist',
+            })
+        }
+        // Password Validation
+        if (passwordChecker(password, userExists.password)) {
+            return res.status(200).json({
+                emailExists: true, // Corrected typo: flase to false
+                message: 'Password correct',
+            })
+        }
     } catch (err) {
         console.error(err)
         res.status(500).json({ error: 'Server error' })
