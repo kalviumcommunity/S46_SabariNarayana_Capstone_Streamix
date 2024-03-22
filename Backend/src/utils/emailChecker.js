@@ -1,11 +1,11 @@
-const { FetchUserPass } = require('../models/Fetch/UserPass')
+const { FetchUserPass } = require('../models/GET/UserPass')
 
 const validateEmail = async (email) => {
-    console.log(email)
+    // console.log(email)
     try {
         const user = await FetchUserPass(email)
         if (user.email === email) {
-            return { UserExist: true, password: user.password }
+            return { id: user.id, UserExist: true, password: user.password }
         } else if (!user.UserExist) {
             return { UserExist: false }
         }

@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt')
 
 const passwordChecker = async (givenPass, FetchPass) => {
     const match = await bcrypt.compare(givenPass, FetchPass)
-    console.log(match)
     return match
 }
 

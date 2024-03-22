@@ -4,7 +4,11 @@ const FetchUserPass = async (email) => {
     try {
         const user = await UserModel.findOne({ email })
         if (user) {
-            return { email: user.email, password: user.password }
+            return {
+                id: user._id.toString(),
+                email: user.email,
+                password: user.password,
+            }
         } else {
             return { UserExist: false }
         }
