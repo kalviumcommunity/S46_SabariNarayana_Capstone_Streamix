@@ -1,12 +1,14 @@
-const { UserModel } = require('../models/Schema')
+const { FetchUserPass } = require('../models/GET/UserPass')
 
 const validateEmail = async (email) => {
+    // console.log(email)
     try {
-        // Check if there is a user with the provided email
-        const user = await UserModel.findOne({ email })
-        // console.log(!!user)
-        // Return true if user exists; otherwise, return false
-        return !!user
+        const user = await FetchUserPass(email)
+        if (user.email === email) {
+            return { id: user.id, UserExist: true, password: user.password }
+        } else if (!user.UserExist) {
+            return { UserExist: false }
+        }
     } catch (error) {
         // Handle error
         console.error('Error validating email:', error.message)
@@ -14,7 +16,6 @@ const validateEmail = async (email) => {
         return false
     }
 }
-
 // Exporting functions and router for use in other modules
 module.exports = {
     validateEmail,

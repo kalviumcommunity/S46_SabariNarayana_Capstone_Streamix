@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import google from "/google.svg";
+import { useNavigate } from "react-router-dom";
 
 export const SignUpForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,7 +39,7 @@ export const SignUpForm = () => {
           setSignupError("Email already exists"); // Set signup error if email exists
         } else {
           console.log(response.data);
-          // You can redirect the user or display a success message here
+          navigate("/");
         }
       } catch (error) {
         console.error(error);
