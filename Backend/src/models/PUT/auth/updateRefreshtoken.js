@@ -2,19 +2,27 @@ const { UserModel } = require('../../Schema')
 
 const updateRefreshToken = async (id, oldRefreshToken, newRefreshToken) => {
     try {
-        // Find the user by ID and update the refreshToken array
-        const updatedUser = await UserModel.findOneAndUpdate(
-            { _id: id },
-            {
-                $pull: { refreshToken: oldRefreshToken },
-                $push: { refreshToken: newRefreshToken },
-            },
-            { new: true }
-        )
+        // Find the user by ID
+        const user = await UserModel.findById(id)
 
-        if (!updatedUser) {
+        if (!user) {
             throw new Error('User not found')
         }
+
+        // Remove the old refresh token from the array
+        const refreshTokenArray = user.refreshToken.filter(
+            (token) => token !== oldRefreshToken
+        )
+
+        // Add the new refresh token to the array
+        refreshTokenArray.push(newRefreshToken)
+
+        // Update the user document with the modified refreshToken array
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            id,
+            { refreshToken: refreshTokenArray },
+            { new: true }
+        )
 
         console.log('Refresh token updated successfully.')
         return updatedUser

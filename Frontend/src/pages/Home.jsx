@@ -18,7 +18,7 @@ export const Home = () => {
         );
         // Handle the response data as needed
         if (response.data.success) {
-          // navigate("/dashboard");
+          navigate("/dashboard");
         }
       } catch (error) {
         console.error("Error verifying cookie:", error);

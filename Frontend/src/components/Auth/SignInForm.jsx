@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import google from "/google.svg"; // Corrected import path
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const SignInForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -29,7 +31,7 @@ export const SignInForm = () => {
       if (!response.data.emailExists) {
         setSignupError("Email/Password does not match"); // Set signup error if email does not exist
       } else {
-        console.log(response.data);
+        navigate("/dashboard");
         // You can redirect the user or display a success message here
       }
     } catch (error) {
