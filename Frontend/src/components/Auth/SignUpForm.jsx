@@ -38,8 +38,7 @@ export const SignUpForm = () => {
         if (response.data.emailExists) {
           setSignupError("Email already exists"); // Set signup error if email exists
         } else {
-          console.log(response.data);
-          navigate("/");
+          navigate("/signin");
         }
       } catch (error) {
         console.error(error);

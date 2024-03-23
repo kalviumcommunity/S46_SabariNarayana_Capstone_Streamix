@@ -10,7 +10,7 @@ const accessTokenChecker = async (accessToken) => {
             return true // Access token is valid
         }
     } catch (error) {
-        console.error('Error verifying access token:', error)
+        console.error('No Access Token')
     }
     return false // Access token is invalid or verification failed
 }
@@ -22,7 +22,7 @@ const refreshTokenChecker = async (refreshToken) => {
             process.env.REFRESH_TOKEN_SECRET
         )
         if (data) {
-            return { valid: true, id: data }
+            return { valid: true, id: data.data }
         } // Refresh token is valid
     } catch (error) {
         console.error('Error verifying refresh token:', error)
