@@ -1,10 +1,8 @@
-import React, { useEffect } from "react";
-import { HomeNavBar } from "../components/navBar/HomeNavBar";
-import { Footer } from "../components/footer/Footer";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-export const Home = () => {
+export const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,8 +15,8 @@ export const Home = () => {
           { withCredentials: true }, // Include cookies in the request
         );
         // Handle the response data as needed
-        if (response.data.success) {
-          navigate("/dashboard");
+        if (!response.data.success) {
+          navigate("/");
         }
       } catch (error) {
         console.error("Error verifying cookie:", error);
@@ -28,10 +26,5 @@ export const Home = () => {
     };
     verifyCookie();
   }, [navigate]); // Include navigate in the dependency array if you use it inside useEffect
-  return (
-    <div>
-      <HomeNavBar />
-      <Footer />
-    </div>
-  );
+  return <div>Dashboard</div>;
 };

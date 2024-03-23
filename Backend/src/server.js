@@ -4,10 +4,12 @@ const app = express()
 const cors = require('cors')
 const routes = require('./routes/routes') // Import routes from a separate file
 const { connectToDatabase, isConnected } = require('./models/Database') // Import database functions from a separate file
+const cookieParser = require('cookie-parser')
 
 // Middleware
 app.use(express.json())
 app.use(cors({ credentials: true, origin: true, withCredentials: true }))
+app.use(cookieParser())
 
 // Routes
 app.use('/api', routes)
@@ -34,6 +36,9 @@ app.get('/', async (req, res) => {
 // Start the server
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
+    console.log(
+        '----------------------------------------------------------------'
+    )
     console.log(`Server is running on port ${PORT}`)
     connectToDatabase()
 })
