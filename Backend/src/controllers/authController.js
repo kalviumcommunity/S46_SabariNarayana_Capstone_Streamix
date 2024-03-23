@@ -109,10 +109,6 @@ exports.checkUser = async (req, res) => {
         const accessToken = req.cookies.access_token
         const refreshToken = req.cookies.refresh_token
 
-        // Do something with the cookies
-        console.log('Access Token:', accessToken)
-        console.log('Refresh Token:', refreshToken)
-
         // Check the validity of the access token
         const isAccessTokenValid = await accessTokenChecker(accessToken)
 
@@ -128,7 +124,6 @@ exports.checkUser = async (req, res) => {
 
         // If the refresh token is valid, generate new access and refresh tokens
         if (refreshData.valid) {
-            // console.log(refreshData)
             // Generate new tokens
             const newAccessToken = accessTokenGenerator(refreshData.id, '15m')
             const newRefreshToken = refreshTokenGenerator(refreshData.id, '7d')
