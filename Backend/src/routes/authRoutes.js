@@ -16,4 +16,8 @@ router.post('/signin', authController.postSignin)
 
 router.post('/checkuser', authController.checkUser)
 
+router.get('/google/callback', authController.googleCallback)
+
+router.get('/googleAuth', authController.googleAuth)
+
 module.exports = router

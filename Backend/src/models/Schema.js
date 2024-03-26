@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
     email: String, // email of the user
     password: String, // password of the user
     refreshToken: Array, // Refresh token
+    provider: { type: String, required: true, default: 'email' },
 })
 
 // Hashing the password before saving
