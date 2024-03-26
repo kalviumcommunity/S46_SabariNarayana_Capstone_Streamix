@@ -40,6 +40,15 @@ export const SignInForm = () => {
     }
   };
 
+  const handleGoogleSignup = () => {
+    axios
+      .post(`${import.meta.env.VITE_REACT_APP_HOST}/auth/googleAuth`)
+      .then((res) => (window.location.href = res.data.url))
+      .catch((error) => {
+        console.error("Error checking authentication status:", error);
+      });
+  };
+
   return (
     <div className="flex h-screen items-center justify-center bg-black">
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
@@ -89,6 +98,7 @@ export const SignInForm = () => {
           </div>
           <div>
             <button
+              onClick={handleGoogleSignup}
               type="button"
               className="flex w-full items-center justify-center rounded border border-gray-400 bg-white px-4 py-2 font-bold text-black hover:bg-gray-100 "
             >

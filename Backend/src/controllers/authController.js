@@ -12,6 +12,10 @@ const {
 } = require('../middleware/Auth/TokenCheking')
 const { updateRefreshToken } = require('../models/PUT/auth/updateRefreshtoken')
 
+// google auth import
+const { OAuth2Client } = require('google-auth-library')
+const google = require('googleapis').google
+
 exports.getTest = (req, res) => {
     try {
         // You can add any logic or data processing here
@@ -152,4 +156,69 @@ exports.checkUser = async (req, res) => {
         console.error('Error retrieving cookies:', error)
         return res.status(500).json({ error: 'Server error' })
     }
+}
+
+// Google Auth
+// const REDIRECT_URI = process.env.REDIRECT_URI
+// const client = new OAuth2Client(
+//     process.env.CLIENT_ID,
+//     process.env.CLIENT_SECRET,
+//     REDIRECT_URI
+// )
+
+exports.googleCallback = async (req, res) => {
+    const REDIRECT_URI = process.env.REDIRECT_URI
+    const client = new OAuth2Client(
+        process.env.CLIENT_ID,
+        process.env.CLIENT_SECRET,
+        REDIRECT_URI
+    )
+    const { code } = req.query
+
+    try {
+        const { tokens } = await client.getToken(code)
+        client.setCredentials(tokens)
+
+        // Get user information from Google
+        const oauth2 = google.oauth2({ version: 'v2', auth: client })
+        const userInfo = await oauth2.userinfo.get()
+
+        // Here, you can check if the user exists in your database
+        // and either create a new user or update the existing one
+        // with the user information provided by Google
+        const user = {
+            googleId: userInfo.data.id,
+            name: userInfo.data.name,
+            email: userInfo.data.email,
+            // ... other user properties
+        }
+        console.log(userInfo)
+
+        // Save the user to your database or do any other necessary operations
+        // ...
+
+        // Redirect the user to the desired page after successful authentication
+        res.redirect('/profile')
+    } catch (err) {
+        console.error('Error authenticating with Google:', err)
+        res.redirect('/login')
+    }
+}
+
+exports.googleAuth = async (req, res) => {
+    const REDIRECT_URI = process.env.REDIRECT_URI
+    const client = new OAuth2Client(
+        process.env.CLIENT_ID,
+        process.env.CLIENT_SECRET,
+        REDIRECT_URI
+    )
+    const authUrl = client.generateAuthUrl({
+        access_type: 'offline',
+        scope: ['https://www.googleapis.com/auth/userinfo.profile email'],
+        prompt: 'consent',
+    })
+
+    console.log(authUrl)
+
+    res.json({ authURL: authUrl })
 }
