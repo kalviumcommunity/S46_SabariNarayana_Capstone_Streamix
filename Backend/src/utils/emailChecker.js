@@ -4,8 +4,14 @@ const validateEmail = async (email) => {
     // console.log(email)
     try {
         const user = await FetchUserPass(email)
+        console.log(user)
         if (user.email === email) {
-            return { id: user.id, UserExist: true, password: user.password }
+            return {
+                id: user.id,
+                UserExist: true,
+                password: user.password,
+                provider: user.provider,
+            }
         } else if (!user.UserExist) {
             return { UserExist: false }
         }

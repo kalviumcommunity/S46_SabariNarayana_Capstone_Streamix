@@ -12,6 +12,10 @@ const {
 } = require('../middleware/Auth/TokenCheking')
 const { updateRefreshToken } = require('../models/PUT/auth/updateRefreshtoken')
 
+// google auth import
+const { OAuth2Client } = require('google-auth-library')
+const google = require('googleapis').google
+
 exports.getTest = (req, res) => {
     try {
         // You can add any logic or data processing here
@@ -32,17 +36,18 @@ exports.getTest = (req, res) => {
 exports.postSignup = async (req, res) => {
     console.log('signup')
     try {
-        console.log(req.body) // Log the request body
+        // console.log(req.body) // Log the request body
         // Destructuring required data from request body
         const { name, password, email } = req.body
         const userExists = await validateEmail(email)
-        if (userExists.UserExists) {
+        if (userExists.UserExist) {
             return res.status(200).json({ emailExists: true })
         }
         const userData = {
             name,
             password,
             email,
+            provider: 'email',
         }
         // Database Function for setting user
         await postUser(userData)
@@ -64,20 +69,31 @@ exports.postSignin = async (req, res) => {
         const { password, email } = req.body
         // fetching data from DB
         const userExists = await validateEmail(email)
-        console.log('main', userExists)
+        // console.log('first == ', userExists)
+        if (userExists.provider === 'google') {
+            // Corrected typo: flase to false
+            return res.status(200).json({
+                error: false,
+                emailExists: true,
+                google: true,
+                message: 'Login with Google',
+            })
+        }
         // Email Validation
         if (!userExists.UserExist) {
             // Corrected typo: flase to false
             return res.status(200).json({
                 error: false,
-                emailExists: false, // Corrected typo: flase to false
+                emailExists: false,
+                google: false,
                 message: 'User does not exist',
             })
         }
         // Password Validation
         if (!(await passwordChecker(password, userExists.password))) {
             return res.status(200).json({
-                emailExists: true, // Corrected typo: flase to false
+                emailExists: true,
+                google: false,
                 message: 'Password incorrect',
             })
         }
@@ -93,7 +109,7 @@ exports.postSignin = async (req, res) => {
         res.cookie('refresh_token', refreshToken, { httpOnly: true })
 
         res.status(200).json({
-            emailExists: true, // Corrected typo: flase to false
+            emailExists: true,
             accessToken,
             refreshToken,
         })
@@ -152,4 +168,76 @@ exports.checkUser = async (req, res) => {
         console.error('Error retrieving cookies:', error)
         return res.status(500).json({ error: 'Server error' })
     }
+}
+
+// Google Auth
+
+exports.googleCallback = async (req, res) => {
+    const REDIRECT_URI = process.env.REDIRECT_URI
+    const client = new OAuth2Client(
+        process.env.CLIENT_ID,
+        process.env.CLIENT_SECRET,
+        REDIRECT_URI
+    )
+    const { code } = req.query
+
+    try {
+        const { tokens } = await client.getToken(code)
+        client.setCredentials(tokens)
+
+        // Get user information from Google
+        const oauth2 = google.oauth2({ version: 'v2', auth: client })
+        const userInfo = await oauth2.userinfo.get()
+
+        const userExists = await validateEmail(userInfo.data.email)
+        // console.log(userExists)
+
+        if (!userExists.UserExist) {
+            const newUser = {
+                name: userInfo.data.name,
+                email: userInfo.data.email,
+                provider: 'google',
+            }
+            // Database Function for setting user
+            const data = await postUser(newUser)
+            userExists.id = data._id.toString()
+            // userExists.id = await postUser(newUser).id
+        }
+
+        const { accessToken, refreshToken } = await tokenAssigning(
+            userExists.id
+        )
+
+        // Set access token as cookie
+        res.cookie('access_token', accessToken, { httpOnly: true })
+
+        // Set refresh token as cookie
+        res.cookie('refresh_token', refreshToken, { httpOnly: true })
+
+        // Save the user to your database or do any other necessary operations
+        // ...
+        res.redirect(303, `${process.env.FRONTEND_URL}/dashboard`)
+        // Redirect the user to the desired page after successful authentication
+    } catch (err) {
+        console.error('Error authenticating with Google:', err)
+        res.redirect(303, `${process.env.FRONTEND_URL}/signin?status=failed`)
+    }
+}
+
+exports.googleAuth = async (req, res) => {
+    const REDIRECT_URI = process.env.REDIRECT_URI
+    const client = new OAuth2Client(
+        process.env.CLIENT_ID,
+        process.env.CLIENT_SECRET,
+        REDIRECT_URI
+    )
+    const authUrl = client.generateAuthUrl({
+        access_type: 'offline',
+        scope: ['https://www.googleapis.com/auth/userinfo.profile email'],
+        prompt: 'consent',
+    })
+
+    // console.log(authUrl)
+
+    res.json({ authURL: authUrl })
 }
