@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import google from "/google.svg";
 import { useNavigate } from "react-router-dom";
@@ -75,6 +75,14 @@ export const SignUpForm = () => {
     return errors;
   };
 
+  const handleGoogleSignup = () => {
+    axios
+      .get(`${import.meta.env.VITE_REACT_APP_HOST}/api/auth/googleAuth`)
+      .then((res) => (window.location.href = res.data.authURL))
+      .catch((error) => {
+        console.error("Error checking authentication status:", error);
+      });
+  };
   return (
     <div className="flex h-screen items-center justify-center bg-black">
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
@@ -155,6 +163,7 @@ export const SignUpForm = () => {
           </div>
           <div>
             <button
+              onClick={handleGoogleSignup}
               type="button"
               className="flex w-full items-center justify-center rounded border border-gray-400 bg-white px-4 py-2 font-bold text-black hover:bg-gray-100"
             >
