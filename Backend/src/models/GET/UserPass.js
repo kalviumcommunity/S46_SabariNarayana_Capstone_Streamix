@@ -8,6 +8,7 @@ const FetchUserPass = async (email) => {
                 id: user._id.toString(),
                 email: user.email,
                 password: user.password,
+                provider: user.provider,
             }
         } else {
             return { UserExist: false }

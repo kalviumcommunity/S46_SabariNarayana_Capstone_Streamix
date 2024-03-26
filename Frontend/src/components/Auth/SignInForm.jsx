@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import google from "/google.svg"; // Corrected import path
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export const SignInForm = () => {
   const navigate = useNavigate();
@@ -28,7 +28,10 @@ export const SignInForm = () => {
         formData,
         { withCredentials: true }, // Enable sending cookies
       );
-      if (!response.data.emailExists) {
+      console.log(response);
+      if (response.data.google) {
+        setSignupError("Login with Google");
+      } else if (!response.data.emailExists && !response.data.google) {
         setSignupError("Email/Password does not match"); // Set signup error if email does not exist
       } else {
         navigate("/dashboard");
@@ -42,12 +45,20 @@ export const SignInForm = () => {
 
   const handleGoogleSignup = () => {
     axios
-      .post(`${import.meta.env.VITE_REACT_APP_HOST}/auth/googleAuth`)
-      .then((res) => (window.location.href = res.data.url))
+      .get(`${import.meta.env.VITE_REACT_APP_HOST}/api/auth/googleAuth`)
+      .then((res) => (window.location.href = res.data.authURL))
       .catch((error) => {
         console.error("Error checking authentication status:", error);
       });
   };
+
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const status = searchParams.get("status");
+    if (status === "failed") {
+      setSignupError("Google Auth Failed");
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-black">
