@@ -1,7 +1,7 @@
 const { putRefreshToken } = require('../../models/PUT/auth/putRefreshToken')
 const { accessTokenGenerator, refreshTokenGenerator } = require('./generateJWT')
 
-const tokenAssigning = async (id) => {
+const assignToken = async (id) => {
     const accessToken = accessTokenGenerator(id, '15m')
     const refreshToken = refreshTokenGenerator(id, '7d')
 
@@ -12,5 +12,5 @@ const tokenAssigning = async (id) => {
 
 // Exporting functions and router for use in other modules
 module.exports = {
-    tokenAssigning,
+    assignToken,
 }

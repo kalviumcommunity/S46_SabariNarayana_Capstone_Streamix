@@ -1,7 +1,7 @@
-const { validateEmail } = require('../utils/emailChecker')
-const { passwordChecker } = require('../utils/passwordChecker')
-const { postUser } = require('../models/POST/auth/postUser')
-const { tokenAssigning } = require('../middleware/Auth/tokenAssigning')
+const emailChecker = require('../utils/emailChecker')
+const passwordChecker = require('../utils/passwordChecker')
+const postUser = require('../models/POST/auth/postUser')
+const { assignToken } = require('../middleware/Auth/tokenAssigning')
 const {
     accessTokenGenerator,
     refreshTokenGenerator,
@@ -10,11 +10,13 @@ const {
     accessTokenChecker,
     refreshTokenChecker,
 } = require('../middleware/Auth/TokenCheking')
-const { updateRefreshToken } = require('../models/PUT/auth/updateRefreshtoken')
+const updateRefreshToken = require('../models/PUT/auth/updateRefreshtoken')
 
-// google auth import
+// Google auth import
 const { OAuth2Client } = require('google-auth-library')
 const google = require('googleapis').google
+
+const config = require('../config/config') // Assuming you have a centralized config file
 
 exports.getTest = (req, res) => {
     try {
@@ -27,18 +29,17 @@ exports.getTest = (req, res) => {
         // Send the test data as a JSON response
         res.status(200).json(testData)
     } catch (err) {
-        // Handle errors
-        console.error(err)
-        res.status(500).json({ error: 'Server error' })
+        // Handle errors using a centralized error handler
+        errorHandler(err, res)
     }
 }
 
 exports.postSignup = async (req, res) => {
     console.log('signup')
     try {
-        // console.log(req.body) // Log the request body
         // Destructuring required data from request body
         const { name, password, email } = req.body
+        const { validateEmail } = emailChecker
         const userExists = await validateEmail(email)
         if (userExists.UserExist) {
             return res.status(200).json({ emailExists: true })
@@ -57,8 +58,8 @@ exports.postSignup = async (req, res) => {
             message: 'User created successfully',
         })
     } catch (err) {
-        console.error(err)
-        res.status(500).json({ error: 'Server error' })
+        // Handle errors using a centralized error handler
+        errorHandler(err, res)
     }
 }
 
@@ -67,11 +68,10 @@ exports.postSignin = async (req, res) => {
     try {
         // Destructuring required data from request body
         const { password, email } = req.body
+        const { validateEmail } = emailChecker
         // fetching data from DB
         const userExists = await validateEmail(email)
-        // console.log('first == ', userExists)
         if (userExists.provider === 'google') {
-            // Corrected typo: flase to false
             return res.status(200).json({
                 error: false,
                 emailExists: true,
@@ -81,7 +81,6 @@ exports.postSignin = async (req, res) => {
         }
         // Email Validation
         if (!userExists.UserExist) {
-            // Corrected typo: flase to false
             return res.status(200).json({
                 error: false,
                 emailExists: false,
@@ -89,8 +88,9 @@ exports.postSignin = async (req, res) => {
                 message: 'User does not exist',
             })
         }
+        const { passwordChecker: pwdChecker } = passwordChecker
         // Password Validation
-        if (!(await passwordChecker(password, userExists.password))) {
+        if (!(await pwdChecker(password, userExists.password))) {
             return res.status(200).json({
                 emailExists: true,
                 google: false,
@@ -98,9 +98,7 @@ exports.postSignin = async (req, res) => {
             })
         }
         // Token assignment
-        const { accessToken, refreshToken } = await tokenAssigning(
-            userExists.id
-        )
+        const { accessToken, refreshToken } = await assignToken(userExists.id)
 
         // Set access token as cookie
         res.cookie('access_token', accessToken, { httpOnly: true })
@@ -114,8 +112,8 @@ exports.postSignin = async (req, res) => {
             refreshToken,
         })
     } catch (err) {
-        console.error(err)
-        res.status(500).json({ error: 'Server error' })
+        // Handle errors using a centralized error handler
+        errorHandler(err, res)
     }
 }
 
@@ -150,33 +148,31 @@ exports.checkUser = async (req, res) => {
                 newRefreshToken
             )
 
-            // // Set the new access and refresh tokens as cookies
+            // Set the new access and refresh tokens as cookies
             res.cookie('access_token', newAccessToken, { httpOnly: true })
             res.cookie('refresh_token', newRefreshToken, { httpOnly: true })
 
             // Respond to the client with new tokens
             return res.status(200).json({
                 success: true,
-                // accessToken: newAccessToken,
-                // refreshToken: newRefreshToken,
             })
         }
 
         // If both access and refresh tokens are invalid, respond with an error
         return res.status(401).json({ error: 'Unauthorized' })
     } catch (error) {
-        console.error('Error retrieving cookies:', error)
-        return res.status(500).json({ error: 'Server error' })
+        // Handle errors using a centralized error handler
+        errorHandler(error, res)
     }
 }
 
 // Google Auth
 
 exports.googleCallback = async (req, res) => {
-    const REDIRECT_URI = process.env.REDIRECT_URI
+    const REDIRECT_URI = config.REDIRECT_URI
     const client = new OAuth2Client(
-        process.env.CLIENT_ID,
-        process.env.CLIENT_SECRET,
+        config.CLIENT_ID,
+        config.CLIENT_SECRET,
         REDIRECT_URI
     )
     const { code } = req.query
@@ -189,8 +185,8 @@ exports.googleCallback = async (req, res) => {
         const oauth2 = google.oauth2({ version: 'v2', auth: client })
         const userInfo = await oauth2.userinfo.get()
 
+        const { validateEmail } = emailChecker
         const userExists = await validateEmail(userInfo.data.email)
-        // console.log(userExists)
 
         if (!userExists.UserExist) {
             const newUser = {
@@ -201,12 +197,9 @@ exports.googleCallback = async (req, res) => {
             // Database Function for setting user
             const data = await postUser(newUser)
             userExists.id = data._id.toString()
-            // userExists.id = await postUser(newUser).id
         }
 
-        const { accessToken, refreshToken } = await tokenAssigning(
-            userExists.id
-        )
+        const { accessToken, refreshToken } = await assignToken(userExists.id)
 
         // Set access token as cookie
         res.cookie('access_token', accessToken, { httpOnly: true })
@@ -214,21 +207,20 @@ exports.googleCallback = async (req, res) => {
         // Set refresh token as cookie
         res.cookie('refresh_token', refreshToken, { httpOnly: true })
 
-        // Save the user to your database or do any other necessary operations
-        // ...
-        res.redirect(303, `${process.env.FRONTEND_URL}/dashboard`)
         // Redirect the user to the desired page after successful authentication
+        res.redirect(303, `${config.FRONTEND_URL}/dashboard`)
     } catch (err) {
-        console.error('Error authenticating with Google:', err)
-        res.redirect(303, `${process.env.FRONTEND_URL}/signin?status=failed`)
+        // Handle errors using a centralized error handler
+        errorHandler(err, res, 'Error authenticating with Google')
+        res.redirect(303, `${config.FRONTEND_URL}/signin?status=failed`)
     }
 }
 
 exports.googleAuth = async (req, res) => {
-    const REDIRECT_URI = process.env.REDIRECT_URI
+    const REDIRECT_URI = config.REDIRECT_URI
     const client = new OAuth2Client(
-        process.env.CLIENT_ID,
-        process.env.CLIENT_SECRET,
+        config.CLIENT_ID,
+        config.CLIENT_SECRET,
         REDIRECT_URI
     )
     const authUrl = client.generateAuthUrl({
@@ -237,7 +229,30 @@ exports.googleAuth = async (req, res) => {
         prompt: 'consent',
     })
 
-    // console.log(authUrl)
-
     res.json({ authURL: authUrl })
+}
+
+const logger = {
+    error: (err) => {
+        console.error(err)
+    },
+}
+
+// Centralized error handler function
+const errorHandler = (err, res, customMessage) => {
+    // Log the error
+    logger.error(err)
+
+    // Prepare the error response
+    const errorResponse = {
+        error: err.message || 'Internal Server Error',
+    }
+
+    // If a custom message is provided, include it in the response
+    if (customMessage) {
+        errorResponse.message = customMessage
+    }
+
+    // Send the error response
+    res.status(500).json(errorResponse)
 }
