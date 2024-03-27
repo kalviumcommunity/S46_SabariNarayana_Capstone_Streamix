@@ -1,11 +1,9 @@
 const jwt = require('jsonwebtoken')
+const config = require('../../config/config') // Assuming you have a centralized config file
 
 const accessTokenChecker = async (accessToken) => {
     try {
-        const data = await jwt.verify(
-            accessToken,
-            process.env.ACCESS_TOKEN_SECRET
-        )
+        const data = await jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET)
         if (data) {
             return true // Access token is valid
         }
@@ -17,10 +15,7 @@ const accessTokenChecker = async (accessToken) => {
 
 const refreshTokenChecker = async (refreshToken) => {
     try {
-        const data = await jwt.verify(
-            refreshToken,
-            process.env.REFRESH_TOKEN_SECRET
-        )
+        const data = await jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET)
         if (data) {
             return { valid: true, id: data.data }
         } // Refresh token is valid

@@ -1,12 +1,12 @@
 // Importing required modules
 const mongoose = require('mongoose')
-require('dotenv').config() // Loading environment variables from .env file
+const config = require('../config/config') // Assuming you have a centralized config file
 
 // Function to start the database connection
 const connectToDatabase = async () => {
     try {
         // Connecting to MongoDB using the URI from environment variables
-        await mongoose.connect(process.env.MONGO_URI)
+        await mongoose.connect(config.MONGO_URI)
         console.log('Connected to MongoDB')
     } catch (error) {
         // Handling connection error

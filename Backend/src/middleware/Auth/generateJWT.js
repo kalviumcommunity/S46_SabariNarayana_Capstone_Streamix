@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const config = require('../../config/config') // Assuming you have a centralized config file
 
 function accessTokenGenerator(data, time) {
     // Ensure data is provided
@@ -8,13 +9,9 @@ function accessTokenGenerator(data, time) {
 
     try {
         // Sign the JWT token with the provided data and expiration time
-        const accessToken = jwt.sign(
-            { data },
-            process.env.ACCESS_TOKEN_SECRET,
-            {
-                expiresIn: time,
-            }
-        )
+        const accessToken = jwt.sign({ data }, config.ACCESS_TOKEN_SECRET, {
+            expiresIn: time,
+        })
 
         return accessToken
     } catch (error) {
@@ -31,13 +28,9 @@ function refreshTokenGenerator(data, time) {
 
     try {
         // Sign the JWT token with the provided data and expiration time
-        const refreshToken = jwt.sign(
-            { data },
-            process.env.REFRESH_TOKEN_SECRET,
-            {
-                expiresIn: time,
-            }
-        )
+        const refreshToken = jwt.sign({ data }, config.REFRESH_TOKEN_SECRET, {
+            expiresIn: time,
+        })
 
         return refreshToken
     } catch (error) {
