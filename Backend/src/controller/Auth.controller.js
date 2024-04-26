@@ -20,4 +20,6 @@ Auth.post('/signin', authService.postSignin);
 
 Auth.post('/checkuser', authService.checkUser);
 
+Auth.post('/logout', authService.postLogout);
+
 module.exports = Auth;
