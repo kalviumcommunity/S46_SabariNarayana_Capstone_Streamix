@@ -147,6 +147,25 @@ exports.checkUser = async (req, res) => {
   }
 };
 
+exports.postLogout = async (req, res) => {
+  const accessToken = req.cookies.access_token;
+  const refreshToken = req.cookies.refresh_token;
+  // Check the validity of the access token
+  const isAccessTokenValid = await accessTokenChecker(accessToken);
+  console.log(isAccessTokenValid);
+  // If the access token is valid, respond to the client
+  if (isAccessTokenValid.valid) {
+    const response = await mdResolver.deleteRefreshToken(isAccessTokenValid.id, refreshToken);
+  }
+  if (response) {
+    res.cookie('access_token', null, { httpOnly: true });
+    res.cookie('refresh_token', null, { httpOnly: true });
+    res.status(200).json({ message: 'loged out successfully' });
+  } else {
+    res.status(200).json({ message: 'not loged out successfully' });
+  }
+};
+
 const logger = {
   error: (err) => {
     console.error(err);
