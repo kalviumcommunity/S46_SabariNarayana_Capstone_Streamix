@@ -20,6 +20,10 @@ Auth.post('/signin', authService.postSignin);
 
 Auth.post('/checkuser', authService.checkUser);
 
+Auth.get('/google/callback', authService.googleCallback);
+
+Auth.get('/googleAuth', authService.googleAuth);
+
 Auth.post('/logout', authService.postLogout);
 
 module.exports = Auth;
