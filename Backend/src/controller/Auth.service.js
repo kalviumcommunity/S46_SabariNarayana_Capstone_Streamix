@@ -3,7 +3,12 @@ const passwordChecker = require('@utils/passwordChecker');
 const { assignToken } = require('@utils/tokenAssigning');
 const { TokenGenerator } = require('@utils/generateJWT');
 const { accessTokenChecker, refreshTokenChecker } = require('@utils/TokenCheking');
+const config = require('@config/config.js'); // Assuming you have a centralized config file
 const mdResolver = require('@mongodb/resolver');
+// Google auth import
+const { OAuth2Client } = require('google-auth-library');
+const { response } = require('express');
+const google = require('googleapis').google;
 
 exports.getTest = (req, res) => {
   try {
@@ -165,7 +170,63 @@ exports.postLogout = async (req, res) => {
     res.status(200).json({ message: 'not loged out successfully' });
   }
 };
+// Google Auth
 
+exports.googleCallback = async (req, res) => {
+  const REDIRECT_URI = config.REDIRECT_URI;
+  const client = new OAuth2Client(config.CLIENT_ID, config.CLIENT_SECRET, REDIRECT_URI);
+  const { code } = req.query;
+
+  try {
+    const { tokens } = await client.getToken(code);
+    client.setCredentials(tokens);
+
+    // Get user information from Google
+    const oauth2 = google.oauth2({ version: 'v2', auth: client });
+    const userInfo = await oauth2.userinfo.get();
+
+    const { validateEmail } = emailChecker;
+    const userExists = await validateEmail(userInfo.data.email);
+
+    if (!userExists.UserExist) {
+      const newUser = {
+        name: userInfo.data.name,
+        email: userInfo.data.email,
+        provider: 'google'
+      };
+      // Database Function for setting user
+      const data = await mdResolver.postUser(newUser);
+      userExists.id = data._id.toString();
+    }
+
+    const { accessToken, refreshToken } = await assignToken(userExists.id);
+
+    // Set access token as cookie
+    res.cookie('access_token', accessToken, { httpOnly: true });
+
+    // Set refresh token as cookie
+    res.cookie('refresh_token', refreshToken, { httpOnly: true });
+
+    // Redirect the user to the desired page after successful authentication
+    res.redirect(303, `${config.FRONTEND_URL}/`);
+  } catch (err) {
+    // Handle errors using a centralized error handler
+    errorHandler(err, res, 'Error authenticating with Google');
+    res.redirect(303, `${config.FRONTEND_URL}/`);
+  }
+};
+
+exports.googleAuth = async (req, res) => {
+  const REDIRECT_URI = config.REDIRECT_URI;
+  const client = new OAuth2Client(config.CLIENT_ID, config.CLIENT_SECRET, REDIRECT_URI);
+  const authUrl = client.generateAuthUrl({
+    access_type: 'offline',
+    scope: ['https://www.googleapis.com/auth/userinfo.profile email'],
+    prompt: 'consent'
+  });
+
+  res.json({ authURL: authUrl });
+};
 const logger = {
   error: (err) => {
     console.error(err);
