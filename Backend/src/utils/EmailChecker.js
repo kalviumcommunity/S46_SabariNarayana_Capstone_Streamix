@@ -1,10 +1,10 @@
-const mdResolver = require('@mongodb/resolver');
+const { fetchUserPass } = require('@mongodb/resolver');
 
 const validateEmail = async (email) => {
-  // console.log(email)
   try {
-    const user = await mdResolver.fetchUserPass(email);
-    console.log(user);
+    const user = await fetchUserPass(email);
+    console.log('Fetched user:', user);
+
     if (user.email === email) {
       return {
         id: user.id,
@@ -12,17 +12,15 @@ const validateEmail = async (email) => {
         password: user.password,
         provider: user.provider
       };
-    } else if (!user.UserExist) {
+    } else {
       return { UserExist: false };
     }
   } catch (error) {
-    // Handle error
     console.error('Error validating email:', error.message);
-    // Return false in case of error
-    return false;
+    return { UserExist: false, error: error.message }; // Return a consistent object structure
   }
 };
-// Exporting functions and router for use in other modules
+
 module.exports = {
   validateEmail
 };
