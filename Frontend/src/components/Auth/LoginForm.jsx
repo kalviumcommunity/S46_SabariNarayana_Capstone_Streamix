@@ -28,7 +28,7 @@ export function LoginForm() {
 
     try {
       const { data } = await axios.post(
-        ${import.meta.env.VITE_REACT_APP_HOST}/api/auth/signin,
+        `${import.meta.env.VITE_REACT_APP_HOST}/api/auth/signin`,
         formData,
         { withCredentials: true }
       );
@@ -49,7 +49,7 @@ export function LoginForm() {
 
   const handleGoogleSignup = useCallback(() => {
     axios
-      .get(${import.meta.env.VITE_REACT_APP_HOST}/api/auth/googleAuth)
+      .get(`${import.meta.env.VITE_REACT_APP_HOST}/api/auth/googleAuth`)
       .then((res) => {
         window.location.href = res.data.authURL;
       })
