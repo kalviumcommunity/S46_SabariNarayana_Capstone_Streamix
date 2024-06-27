@@ -8,7 +8,7 @@
   },
   "scripts": {
     "install": "concurrently --names \"NODE,VITE\" -c \"cyan,green\" \"cd backend && npm install\" \"cd frontend && npm install\"",
-    "dev": "concurrently --names \"NODE,VITE\" -c \"cyan,green\" \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "dev": "concurrently --names \"NODE,VITE\" -c \"cyan,green\" \"cd backend && npm run start\" \"cd frontend && npm run start\"",
     "format": "prettier --write \"**/*.{md,js,jsx,cjs,json,css,html}\""
   },
   "keywords": [],
