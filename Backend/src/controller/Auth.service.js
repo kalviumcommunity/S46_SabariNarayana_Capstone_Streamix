@@ -1,5 +1,5 @@
 const emailChecker = require('@utils/EmailChecker');
-const passwordChecker = require('@utils/passwordChecker');
+const passwordChecker = require('@utils/PasswordChecker');
 const { assignToken } = require('@utils/tokenAssigning');
 const { TokenGenerator } = require('@utils/generateJWT');
 const { accessTokenChecker, refreshTokenChecker } = require('@utils/TokenCheking');
