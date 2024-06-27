@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,62 +7,57 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { userExists } from '@/signals/user.js';
 import { useSignals } from '@preact/signals-react/runtime';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import google from '/google.svg';
 
 export function LoginForm() {
   useSignals();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [signupError, setSignupError] = useState(null); // New state for signup error
+  const [searchParams] = useSearchParams();
+  
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [signupError, setSignupError] = useState(null);
 
-  const handleSubmit = async (event) => {
+  const handleChange = useCallback((e) => {
+    const { id, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [id]: value }));
+  }, []);
+
+  const handleSubmit = useCallback(async (event) => {
     event.preventDefault();
     setSignupError(null);
 
-    // Data to be sent in the POST request
-    const data = {
-      email: email,
-      password: password
-    };
-    console.log(data);
-
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_HOST}/api/auth/signin`,
-        data,
-        { withCredentials: true } // Enable sending cookies
+      const { data } = await axios.post(
+        ${import.meta.env.VITE_REACT_APP_HOST}/api/auth/signin,
+        formData,
+        { withCredentials: true }
       );
-      console.log(response);
-      if (response.data.google) {
+
+      if (data.google) {
         setSignupError('Login with Google');
-      } else if (!response.data.emailExists && !response.data.google) {
-        setSignupError('Email/Password does not match'); // Set signup error if email does not exist
+      } else if (!data.emailExists && !data.google) {
+        setSignupError('Email/Password does not match');
       } else {
         userExists.value = true;
-        console.log('-----', userExists.value);
         navigate('/');
-        // You can redirect the user or display a success message here
       }
     } catch (error) {
-      console.error(error);
-      setSignupError('An error occurred. Please try again.'); // Set error message for any other errors
+      console.error('Login error:', error);
+      setSignupError('An error occurred. Please try again.');
     }
-  };
+  }, [formData, navigate]);
 
-  const handleGoogleSignup = () => {
+  const handleGoogleSignup = useCallback(() => {
     axios
-      .get(`${import.meta.env.VITE_REACT_APP_HOST}/api/auth/googleAuth`)
+      .get(${import.meta.env.VITE_REACT_APP_HOST}/api/auth/googleAuth)
       .then((res) => {
         window.location.href = res.data.authURL;
       })
       .catch((error) => {
-        console.error('Error checking authentication status:', error);
+        console.error('Google auth error:', error);
       });
-  };
+  }, []);
 
-  const [searchParams] = useSearchParams();
   useEffect(() => {
     const status = searchParams.get('status');
     if (status === 'failed') {
@@ -75,7 +70,7 @@ export function LoginForm() {
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription>Enter your email below to login to your account</CardDescription>
-        {signupError && <div className="text-red-500">{signupError}</div>}{' '}
+        {signupError && <div className="text-red-500">{signupError}</div>}
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
@@ -86,21 +81,19 @@ export function LoginForm() {
                 id="email"
                 type="email"
                 placeholder="m@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 required
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                placeholder=""
+                value={formData.password}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -114,10 +107,9 @@ export function LoginForm() {
             <img src={google} alt="Google Logo" className="mr-2 h-6 w-auto" /> Sign in with Google
           </Button>
         </div>
-
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{' '}
-          <Link to="/singup" className="underline">
+          <Link to="/signup" className="underline">
             Sign up
           </Link>
         </div>
