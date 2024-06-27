@@ -1,0 +1,25 @@
+{
+  "name": "Streamix",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "kalviumcommunity/S46_SabariNarayana_Capstone_Streamix"
+  },
+  "scripts": {
+    "install": "concurrently --names \"NODE,VITE\" -c \"cyan,green\" \"cd backend && npm install\" \"cd frontend && npm install\"",
+    "dev": "concurrently --names \"NODE,VITE\" -c \"cyan,green\" \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "format": "prettier --write \"**/*.{md,js,jsx,cjs,json,css,html}\""
+  },
+  "keywords": [],
+  "author": "Alwin Sunil",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.12"
+  },
+  "dependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.2.1"
+  }
+}
