@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 
 // Importing the Auth controller using the alias
-const Auth = require('../controller/Auth.controller');
+const Auth = require('@controller/Auth.controller');
 
 router.use('/auth', Auth);
 router.get('/', async (req, res) => {
