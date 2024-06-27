@@ -1,34 +1,26 @@
 const jwt = require('jsonwebtoken');
-const config = require('@config/config.js'); // Assuming you have a centralized config file
+const { ACCESS_TOKEN_SECRET } = require('@config/config.js'); // Use destructuring for clarity
 
-const accessTokenChecker = async (accessToken) => {
+const verifyToken = async (token, secret, tokenType) => {
   try {
-    const data = await jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET);
+    const data = await jwt.verify(token, secret);
     if (data) {
       return { valid: true, id: data.data };
     }
   } catch (error) {
-    console.log(error);
-    console.error('No Access Token');
+    console.error(`Error verifying ${tokenType}:`, error.message);
   }
-  return false; // Access token is invalid or verification failed
+  return { valid: false, id: null };
+};
+
+const accessTokenChecker = async (accessToken) => {
+  return verifyToken(accessToken, ACCESS_TOKEN_SECRET, 'access token');
 };
 
 const refreshTokenChecker = async (refreshToken) => {
-  console.log('refreshToken:', refreshToken);
-  try {
-    const data = await jwt.verify(refreshToken, config.ACCESS_TOKEN_SECRET);
-    console.log(data);
-    if (data) {
-      return { valid: true, id: data.data };
-    } // Refresh token is valid
-  } catch (error) {
-    console.error('Error verifying refresh token:', error);
-  }
-  return false; // Refresh token is invalid or verification failed
+  console.log('Verifying refresh token:', refreshToken);
+  return verifyToken(refreshToken, ACCESS_TOKEN_SECRET, 'refresh token');
 };
-
-const refreshTokenDBChecker = async (refreshToken) => {};
 
 module.exports = {
   accessTokenChecker,
