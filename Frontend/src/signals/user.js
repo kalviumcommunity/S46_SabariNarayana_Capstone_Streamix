@@ -1,30 +1,30 @@
 import { effect, signal } from '@preact/signals-react';
-import Axios from 'axios'; // Remove curly braces around Axios
+import Axios from 'axios';
 
 export const userExists = signal(false);
 export const userDetails = signal({});
 
 effect(async () => {
   try {
-    const response = await Axios.post(
+    const { data } = await Axios.post(
       `${import.meta.env.VITE_REACT_APP_HOST}/api/auth/checkuser`,
       null,
-      {
-        withCredentials: true
-      }
+      { withCredentials: true }
     );
-    console.log('try : signla effect is running');
-    if (response.data.success) {
+
+    console.log('Signal effect is running');
+
+    if (data.success) {
       userExists.value = true;
-      userDetails.value = response.data.user;
+      userDetails.value = data.user;
     } else {
       userExists.value = false;
       userDetails.value = {};
     }
   } catch (error) {
-    console.log(error);
-    console.log('catch : signla effect is running');
-    userExists.value = false; // Set userExists to false in case of error
-    userDetails.value = {}; // Clear userDetails in case of error
+    console.error('Error in signal effect:', error);
+
+    userExists.value = false;
+    userDetails.value = {};
   }
 });
